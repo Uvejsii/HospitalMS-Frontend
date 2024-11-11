@@ -2,6 +2,8 @@ import {createRouter, createWebHistory} from "vue-router";
 import Home from "../views/Home.vue";
 import DoctorDetail from "../views/DoctorDetail.vue";
 import Admin from "../views/Admin.vue";
+import DoctorsDataTable from "../components/DoctorsDataTable.vue";
+import CategoriesDataTable from "../components/CategoriesDataTable.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +16,19 @@ const router = createRouter({
         {
           path: '/admin',
           name: 'admin',
-          component: Admin
+          component: Admin,
+            children: [
+                {
+                    path: '/admin/doctorsDashboard',
+                    name: 'doctorsDashboard',
+                    component: DoctorsDataTable
+                },
+                {
+                    path: '/admin/departmentsDashboard',
+                    name: 'departmentsDashboard',
+                    component: CategoriesDataTable
+                }
+            ]
         },
         {
             path: '/doctor/:id',

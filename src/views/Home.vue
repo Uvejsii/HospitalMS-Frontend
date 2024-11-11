@@ -14,7 +14,7 @@ onMounted( async () => {
 
 <template>
   <h5>
-    <RouterLink to="/admin" class="text-decoration-none text-dark">
+    <RouterLink to="/admin/doctorsDashboard" class="text-decoration-none text-dark">
       <Button icon="bi bi-arrow-right" label="Go to Admin" severity="info"/>
     </RouterLink>
   </h5>

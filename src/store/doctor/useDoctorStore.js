@@ -1,8 +1,11 @@
 import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
+import {useToast} from "primevue/usetoast";
+
 
 export const useDoctorStore = defineStore("doctor", () => {
     const url = 'https://localhost:7198/Doctors'
+    const toast = useToast()
     const doctors = ref([])
     const doctor = ref({})
     let isLoading = ref(false)
@@ -17,6 +20,7 @@ export const useDoctorStore = defineStore("doctor", () => {
         email: '',
         phoneNumber: '',
         consultationFee: 0,
+        isAvailable: true,
         departamentId: null
     })
 
@@ -28,6 +32,7 @@ export const useDoctorStore = defineStore("doctor", () => {
         email: '',
         phoneNumber: '',
         consultationFee: 0,
+        isAvailable: null,
         departamentId: null
     })
 
@@ -39,7 +44,7 @@ export const useDoctorStore = defineStore("doctor", () => {
             doctors.value = await res.json()
         } catch (err) {
             isError.value = true
-            console.log('Doctors error: ', err)
+            toast.add({ severity: 'error', summary: 'Error While Getting Doctors Data', life: 3000 });
         } finally {
             isLoading.value = false
         }
@@ -52,7 +57,7 @@ export const useDoctorStore = defineStore("doctor", () => {
             const res = await fetch(`${url}/GetDoctorById/${docId}`)
             doctor.value = await res.json()
         } catch (err) {
-            console.log('Doctor error: ', err)
+            toast.add({ severity: 'error', summary: 'Error While Getting Doctor', life: 3000 });
         } finally {
             isLoading.value = false
         }
@@ -67,6 +72,7 @@ export const useDoctorStore = defineStore("doctor", () => {
             email: addDoctorData.email,
             phoneNumber: addDoctorData.phoneNumber,
             consultationFee: addDoctorData.consultationFee,
+            isAvailable: addDoctorData.isAvailable,
             departamentId: addDoctorData.departamentId
         }
 
@@ -79,9 +85,12 @@ export const useDoctorStore = defineStore("doctor", () => {
                 body: JSON.stringify(newDoctor)
             })
 
-            if (res.ok) await getAllDoctors()
+            if (res.ok) {
+                await getAllDoctors()
+                toast.add({ severity: 'success', summary: 'Doctor Added Successfully', life: 3000 });
+            }
         } catch (err) {
-            console.log('Add Doctor error: ', err)
+            toast.add({ severity: 'error', summary: 'Error Adding Doctor', life: 3000 });
         }
     }
 
@@ -93,6 +102,7 @@ export const useDoctorStore = defineStore("doctor", () => {
         editDoctorData.email = doctor.email
         editDoctorData.phoneNumber = doctor.phoneNumber
         editDoctorData.consultationFee = doctor.consultationFee
+        editDoctorData.isAvailable = doctor.isAvailable
         editDoctorData.departamentId = doctor.departament.id
         selectedDoctorId.value = doctor.id
     }
@@ -106,6 +116,7 @@ export const useDoctorStore = defineStore("doctor", () => {
             email: editDoctorData.email,
             phoneNumber: editDoctorData.phoneNumber,
             consultationFee: editDoctorData.consultationFee,
+            isAvailable: editDoctorData.isAvailable,
             departamentId: editDoctorData.departamentId
         }
 
@@ -118,9 +129,12 @@ export const useDoctorStore = defineStore("doctor", () => {
                 body: JSON.stringify(updatedDoctor)
             })
 
-            if (res.ok) await getAllDoctors()
+            if (res.ok) {
+                await getAllDoctors()
+                toast.add({ severity: 'success', summary: 'Doctor Updated Successfully', life: 3000 });
+            }
         } catch (err) {
-            console.log('Edit Doctor error: ', err)
+            toast.add({ severity: 'error', summary: 'Error Updating Doctor', life: 3000 });
         }
     }
 
@@ -130,9 +144,12 @@ export const useDoctorStore = defineStore("doctor", () => {
                 method: 'DELETE'
             })
 
-            if (res.ok) await getAllDoctors()
+            if (res.ok) {
+                await getAllDoctors()
+                toast.add({ severity: 'success', summary: 'Doctor Deleted Successfully', life: 3000 });
+            }
         } catch (err) {
-            console.log('Delete doctor err: ', err)
+            toast.add({ severity: 'error', summary: 'Error Deleting Doctor', life: 3000 });
         }
     }
 
