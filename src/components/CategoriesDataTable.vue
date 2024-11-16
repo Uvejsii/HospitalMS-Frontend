@@ -52,9 +52,8 @@ onMounted(async () => {
       <Column header="Actions" style="max-width: 8rem; text-align: center;">
         <template #body="{ data }">
           <div class="d-flex justify-content-between">
-            <Button data-bs-toggle="modal" data-bs-target="#editDepartmentModal"
-                    icon="bi bi-pencil" severity="warn" size="small" rounded variant="outlined" aria-label="Edit"
-                    @click="departmentStore.startEditDepartment(data)"/>
+            <Button icon="bi bi-pencil" severity="warn" size="small" rounded variant="outlined" aria-label="Edit"
+                    @click="departmentStore.startEditDepartment(data); departmentStore.showEditDepForm = true"/>
             <DeleteDepartmentButton :department="data" />
           </div>
         </template>

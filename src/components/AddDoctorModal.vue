@@ -5,82 +5,218 @@ import Button from "primevue/button";
 import Select from "primevue/select";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
 import RadioButton from "primevue/radiobutton";
+import Message from "primevue/message";
+import Form from "@primevue/forms/form";
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import { z } from "zod";
+import {onMounted, ref} from "vue";
 
 const doctorStore = useDoctorStore()
 const departmentStore = useDepartmentStore()
+
+const addDocFromRef = ref(null)
+const initialValues = ref({
+  addDocFName: '',
+  addDocLName: '',
+  addDocImageUrl: '',
+  addDocYearsOfExperience: 1,
+  addDocEmail: '',
+  addDocPhoneNumber: '',
+  addDocConsultationFee: 0,
+  addDocIsAvailable: true,
+  addDocDepartamentId: null,
+});
+
+const resolver = ref(
+    zodResolver(
+        z.object({
+          addDocFName: z.string().min(1, { message: "First Name is required" }),
+          addDocLName: z.string().min(1, { message: "Last Name is required" }),
+          addDocImageUrl: z.string().min(1, { message: "Image is required" }),
+          addDocYearsOfExperience: z.number().gt(0, { message: "Must be a greater than 0" })
+              .lt(100, {message: "Must be less than 100"}),
+          addDocEmail: z.string().min(1, { message: "Email is required" })
+              .email({ message: 'Invalid email address.' }),
+          addDocPhoneNumber: z.string().min(12, { message: "Phone Number is required" }),
+          addDocConsultationFee: z.number({ message: "Must be a number" }).positive(),
+          addDocIsAvailable: z.boolean(),
+          addDocDepartamentId: z.number({ message: "Department is required" }).positive(),
+        })
+    )
+)
+
+const closeModal = () => {
+  doctorStore.showAddDocForm = false;
+  resetForm()
+}
+
+const resetForm = () => {
+  doctorStore.addDoctorData = {
+    firstName: '',
+    lastName: '',
+    imageIrl: '',
+    yearsOfExperience: 1,
+    email: '',
+    consultationFee: 0,
+    isAvailable: true,
+    departamentId: null,
+  };
+
+  if (addDocFromRef.value?.reset) {
+    addDocFromRef.value.reset();
+  }
+};
+
+const onFormSubmit = ({ valid }) => {
+  if (valid) {
+    doctorStore.addDoctor()
+    resetForm()
+    closeModal()
+  }
+}
+
+onMounted(async () => {
+  await departmentStore.getAllDepartments()
+})
 </script>
 
 <template>
-  <div class="modal fade" id="addDoctorModal" tabindex="-1"
-       aria-labelledby="addDoctorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+  <div v-if="doctorStore.showAddDocForm" id="addDoctorModal" class="modal-container">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="addDoctorModalLabel">Add a Doctor</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <FloatLabel variant="on">
-            <InputText id="fName" type="text" class="form-control" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.firstName" />
-            <label for="fName">Dr. First Name</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="lName" type="text" class="form-control my-3" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.lastName" />
-            <label for="lName">Dr. Last Name</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="imgUrl" type="text" class="form-control" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.imageIrl" />
-            <label for="imgUrl">Image Url</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="yrsExp" type="number" class="form-control my-3" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.yearsOfExperience" />
-            <label for="yrsExp">Years of Experience</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="email" type="text" class="form-control" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.email" />
-            <label for="email">Email</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="phoneNo" type="text" class="form-control my-3" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.phoneNumber" />
-            <label for="phoneNo">Phone Number</label>
-          </FloatLabel>
-          <FloatLabel variant="on">
-            <InputText id="consFee" type="number" class="form-control" autocomplete="off"
-                       v-model="doctorStore.addDoctorData.consultationFee" />
-            <label for="consFee">Consultation Fee</label>
-          </FloatLabel>
-          <div class="d-flex justify-content-between my-3">
-            <Select v-model="doctorStore.addDoctorData.departamentId"
-                    :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
-                    appendTo="#addDoctorModal" placeholder="Select Department"/>
-            <div class="d-flex gap-4 align-items-center">
-              <span class="m-0">Available:</span>
-              <div class="d-flex justify-content-center gap-2">
-                <RadioButton v-model="doctorStore.addDoctorData.isAvailable" input-id="addOption1" name="yes" :value="true" />
-                <label for="addOption1">Yes</label>
-              </div>
-              <div class="d-flex justify-content-center gap-2">
-                <RadioButton v-model="doctorStore.addDoctorData.isAvailable" input-id="addOption2" name="no" :value="false" />
-                <label for="addOption2">No</label>
+        <p class="m-0 text-center fw-semibold fs-4 mt-3 text-success">Add Doctor</p>
+        <Form id="addDoctorForm" ref="addDocFromRef" v-slot="$form" :resolver="resolver"
+              :initialValues="initialValues" @submit="onFormSubmit">
+          <div class="modal-body p-4">
+            <div class="d-flex justify-content-between align-items-center my-4">
+              <FloatLabel variant="on">
+                <InputText name="addDocFName" id="fName" type="text" class="form-control" autocomplete="off"
+                           v-model.trim="doctorStore.addDoctorData.firstName" />
+                <label :class="{'pb-3': $form.addDocFName?.invalid}" for="fName">Dr. First Name</label>
+                <Message v-if="$form.addDocFName?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocFName.error?.message }}
+                </Message>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText name="addDocLName" id="lName" type="text" class="form-control" autocomplete="off"
+                           v-model.trim="doctorStore.addDoctorData.lastName" />
+                <label :class="{'pb-3': $form.addDocLName?.invalid}" for="lName">Dr. Last Name</label>
+                <Message v-if="$form.addDocLName?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocLName.error?.message }}
+                </Message>
+              </FloatLabel>
+            </div>
+            <div class="d-flex justify-content-between align-items-center my-4">
+              <FloatLabel variant="on">
+                <InputText name="addDocImageUrl" id="imgUrl" type="text" class="form-control" autocomplete="off"
+                           v-model="doctorStore.addDoctorData.imageIrl" />
+
+                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Image Url</label>
+                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocImageUrl.error?.message }}
+                </Message>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputNumber name="addDocYearsOfExperience" id="yrsExp"
+                             v-model="doctorStore.addDoctorData.yearsOfExperience" fluid />
+                <label :class="{'pb-3': $form.addDocYearsOfExperience?.invalid}" for="yrsExp">
+                  Years of Experience
+                </label>
+                <Message v-if="$form.addDocYearsOfExperience?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocYearsOfExperience.error?.message }}
+                </Message>
+              </FloatLabel>
+            </div>
+            <div class="d-flex justify-content-between align-items-center my-4">
+              <FloatLabel variant="on">
+                <InputText name="addDocEmail" id="email" type="text" class="form-control" autocomplete="off"
+                           v-model.trim="doctorStore.addDoctorData.email" />
+                <label :class="{'pb-3': $form.addDocEmail?.invalid}" for="email">Email</label>
+                <Message v-if="$form.addDocEmail?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocEmail.error?.message }}
+                </Message>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputText name="addDocPhoneNumber" id="phoneNo" type="text" class="form-control" autocomplete="off"
+                           v-model.trim="doctorStore.addDoctorData.phoneNumber" />
+                <label :class="{'pb-3': $form.addDocPhoneNumber?.invalid}" for="phoneNo">Phone Number</label>
+                <Message v-if="$form.addDocPhoneNumber?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocPhoneNumber.error?.message }}
+                </Message>
+              </FloatLabel>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <FloatLabel variant="on">
+                <InputNumber name="addDocConsultationFee" inputId="currency-germany" id="consFee"
+                             mode="currency" currency="EUR" locale="de-DE"
+                           v-model.trim="doctorStore.addDoctorData.consultationFee" fluid />
+                <label :class="{'pb-3': $form.addDocConsultationFee?.invalid}" for="consFee">Consultation Fee</label>
+                <Message v-if="$form.addDocConsultationFee?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocConsultationFee.error?.message }}
+                </Message>
+              </FloatLabel>
+              <div>
+                <Select name="addDocDepartamentId" v-model="doctorStore.addDoctorData.departamentId"
+                        :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
+                        appendTo="#addDoctorModal" placeholder="Select a Department" />
+                <Message v-if="$form.addDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocDepartamentId.error?.message }}
+                </Message>
               </div>
             </div>
+            <div class="d-flex justify-content-between my-4">
+              <div class="d-flex gap-4 align-items-center">
+                <span class="m-0">Available:</span>
+                <div class="d-flex justify-content-center gap-2">
+                  <RadioButton name="addDocIsAvailable" v-model="doctorStore.addDoctorData.isAvailable"
+                               input-id="addOption1" :value="true" />
+                  <label for="addOption1">Yes</label>
+                </div>
+                <div class="d-flex justify-content-center gap-2">
+                  <RadioButton name="addDocIsAvailable" v-model="doctorStore.addDoctorData.isAvailable"
+                               input-id="addOption2" :value="false" />
+                  <label for="addOption2">No</label>
+                </div>
+                <Message v-if="$form.addDocIsAvailable?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocIsAvailable.error?.message }}
+                </Message>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+              <Button type="submit" label="Add Doctor" />
+              <Button label="Close" severity="secondary" @click="closeModal" />
+            </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <Button label="Add Doctor" data-bs-dismiss="modal" @click="doctorStore.addDoctor()" />
-        </div>
+        </Form>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
 
+<style scoped>
+.modal-container {
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog-centered {
+  max-width: 500px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
 </style>

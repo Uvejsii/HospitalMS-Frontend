@@ -7,6 +7,8 @@ export const useDepartmentStore = defineStore('department', () => {
     const toast = useToast()
     const departments = ref([])
     let isLoading = ref(false)
+    let showAddDepForm = ref(false)
+    let showEditDepForm = ref(false)
     const selectedDepartmentId = ref(null)
     const editDepartmentData = reactive({
         name: '',
@@ -110,6 +112,8 @@ export const useDepartmentStore = defineStore('department', () => {
         editDepartmentData,
         departments,
         isLoading,
-        addDepartmentData
+        addDepartmentData,
+        showAddDepForm,
+        showEditDepForm
     }
 })

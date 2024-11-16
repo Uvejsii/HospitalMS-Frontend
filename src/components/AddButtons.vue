@@ -1,28 +1,40 @@
 <script setup>
 import SpeedDial from "primevue/speeddial";
 import {ref} from "vue";
+import {useDepartmentStore} from "../store/department/useDepartmentStore.js";
+import {useDoctorStore} from "../store/doctor/useDoctorStore.js";
+
+const departmentStore = useDepartmentStore()
+const doctorStore = useDoctorStore()
 
 const items = ref([
   {
     label: 'Doctor',
-    modal: '#addDoctorModal'
+    modal: doctorStore.showAddDocForm
   },
   {
     label: 'Department',
-    modal: '#addDepartmentModal'
+    modal: departmentStore.showAddDepForm
   },
 ])
+
+const toggleModal = (modalKey) => {
+  if (modalKey === 'department') {
+    departmentStore.showAddDepForm = !departmentStore.showAddDepForm;
+  } else if (modalKey === 'doctor') {
+    doctorStore.showAddDocForm = !doctorStore.showAddDocForm;
+  }
+}
 </script>
 
 <template>
   <div class="add-buttons position-relative">
     <SpeedDial :model="items" direction="left" style="position: absolute; top: calc(50% - 1.27rem); right: 0">
       <template #item="{ item, toggleCallback }">
-        <div data-bs-toggle="modal" :data-bs-target="item.modal"
-             class="add-buttons-label flex flex-col items-center justify-between gap-2 p-2 border
-               rounded border-surface-200 dark:border-surface-700 w-20 cursor-pointer
-               bg-green-100 hover:bg-green-200"
-             @click="toggleCallback">
+        <div class="add-buttons-label flex flex-col items-center justify-between gap-2 p-2 border
+               rounded border-surface-200 dark:border-surface-700 w-20 cursor-pointer border-success-subtle
+               bg-green-100 hover:bg-green-200 fw-semibold"
+             @click="(e) => {toggleCallback(e); toggleModal(item.label.toLowerCase())}">
           <span>{{ item.label }}</span>
         </div>
       </template>

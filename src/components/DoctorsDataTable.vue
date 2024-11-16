@@ -106,9 +106,8 @@ const getSeverity = (status) => {
       <Column header="Actions" style="max-width: 8rem; text-align: center;">
         <template #body="{ data }">
           <div class="d-flex justify-content-between">
-            <Button data-bs-toggle="modal" data-bs-target="#editDoctorModal"
-                    icon="bi bi-pencil" severity="warn" size="small" rounded variant="outlined" aria-label="Edit"
-                    @click="doctorStore.startEditDoctor(data)"/>
+            <Button icon="bi bi-pencil" severity="warn" size="small" rounded variant="outlined" aria-label="Edit"
+                    @click="doctorStore.startEditDoctor(data); doctorStore.showEditDocForm = true"/>
             <DeleteDoctorButton :doctor="data" />
           </div>
         </template>

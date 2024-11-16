@@ -10,13 +10,15 @@ export const useDoctorStore = defineStore("doctor", () => {
     const doctor = ref({})
     let isLoading = ref(false)
     let isError = ref(false)
+    let showAddDocForm = ref(false)
+    let showEditDocForm = ref(false)
     const selectedDoctorId = ref(null)
 
     const addDoctorData = reactive({
         firstName: '',
         lastName: '',
         imageIrl: '',
-        yearsOfExperience: 0,
+        yearsOfExperience: 1,
         email: '',
         phoneNumber: '',
         consultationFee: 0,
@@ -165,6 +167,8 @@ export const useDoctorStore = defineStore("doctor", () => {
         doctors,
         doctor,
         addDoctorData,
-        editDoctorData
+        editDoctorData,
+        showAddDocForm,
+        showEditDocForm
     }
 })
