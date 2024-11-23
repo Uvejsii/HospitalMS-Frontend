@@ -48,7 +48,12 @@ const getSeverity = (status) => {
 
       <Column field="firstName" header="Doctor" :showFilterMenu="false" style="max-width: 12rem;">
         <template #body="{ data }">
-          {{ data.firstName }} {{ data.lastName }}
+          <div class="d-flex align-items-center gap-2">
+            <img :src="data.imageFilePath || 'https://via.placeholder.com/150'" alt="dr img"
+                 style="width: 40px; height: 40px; object-fit: cover;"
+                 class="rounded-circle shadow-sm">
+            <span class="p-0 m-0">{{ data.firstName }} {{ data.lastName }}</span>
+          </div>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" style="width: 11rem;" type="text"

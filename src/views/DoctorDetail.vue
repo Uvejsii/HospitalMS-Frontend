@@ -32,12 +32,12 @@ onMounted(async () => {
       </div>
     <div v-else class="card mx-auto shadow-lg p-4" style="max-width: 600px;">
       <RouterLink class="text-decoration-none" to="/">
-        <Button icon="bi bi-arrow-left" label="Back" class="mb-3" />
+        <Button icon="bi bi-arrow-left" label="Back" />
       </RouterLink>
 
-      <div class="d-flex align-items-center mb-4">
+      <div class="d-flex align-items-center my-4">
         <img
-            :src="doctorStore.doctor.imageUrl || 'https://via.placeholder.com/150'"
+            :src="doctorStore.doctor.imageFilePath || 'https://via.placeholder.com/150'"
             alt="Doctor profile picture"
             class="rounded-circle shadow-sm me-3"
             style="width: 100px; height: 100px; object-fit: cover;"

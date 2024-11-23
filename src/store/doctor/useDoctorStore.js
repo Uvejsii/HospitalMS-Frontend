@@ -17,7 +17,8 @@ export const useDoctorStore = defineStore("doctor", () => {
     const addDoctorData = reactive({
         firstName: '',
         lastName: '',
-        imageIrl: '',
+        image: null,
+        imageFileName: '',
         yearsOfExperience: 1,
         email: '',
         phoneNumber: '',
@@ -29,7 +30,9 @@ export const useDoctorStore = defineStore("doctor", () => {
     const editDoctorData = reactive({
         firstName: '',
         lastName: '',
-        imageIrl: '',
+        image: '',
+        imageFileName: '',
+        imageFilePath: null,
         yearsOfExperience: 0,
         email: '',
         phoneNumber: '',
@@ -66,30 +69,30 @@ export const useDoctorStore = defineStore("doctor", () => {
     }
 
     const addDoctor = async () => {
-        const newDoctor = {
-            firstName: addDoctorData.firstName,
-            lastName: addDoctorData.lastName,
-            imageIrl: addDoctorData.imageIrl,
-            yearsOfExperience: addDoctorData.yearsOfExperience,
-            email: addDoctorData.email,
-            phoneNumber: addDoctorData.phoneNumber,
-            consultationFee: addDoctorData.consultationFee,
-            isAvailable: addDoctorData.isAvailable,
-            departamentId: addDoctorData.departamentId
-        }
+        const formData = new FormData();
+
+        formData.append("firstName", addDoctorData.firstName);
+        formData.append("lastName", addDoctorData.lastName);
+        formData.append("yearsOfExperience", addDoctorData.yearsOfExperience);
+        formData.append("email", addDoctorData.email);
+        formData.append("phoneNumber", addDoctorData.phoneNumber);
+        formData.append("consultationFee", addDoctorData.consultationFee);
+        formData.append("isAvailable", addDoctorData.isAvailable);
+        formData.append("departamentId", addDoctorData.departamentId);
+        formData.append("image", addDoctorData.image)
+        formData.append("imageFileName", addDoctorData.imageFileName)
 
         try {
             const res = await fetch(`${url}/CreateDoctor`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newDoctor)
+                body: formData
             })
 
             if (res.ok) {
                 await getAllDoctors()
                 toast.add({ severity: 'success', summary: 'Doctor Added Successfully', life: 3000 });
+            } else {
+                toast.add({ severity: 'error', summary: 'Error Adding Doctor', life: 3000 });
             }
         } catch (err) {
             toast.add({ severity: 'error', summary: 'Error Adding Doctor', life: 3000 });
@@ -99,7 +102,9 @@ export const useDoctorStore = defineStore("doctor", () => {
     const startEditDoctor = (doctor) => {
         editDoctorData.firstName = doctor.firstName
         editDoctorData.lastName = doctor.lastName
-        editDoctorData.imageIrl = doctor.imageIrl
+        editDoctorData.image = doctor.image
+        editDoctorData.imageFileName = doctor.imageFileName
+        editDoctorData.imageFilePath = doctor.imageFilePath
         editDoctorData.yearsOfExperience = doctor.yearsOfExperience
         editDoctorData.email = doctor.email
         editDoctorData.phoneNumber = doctor.phoneNumber
@@ -110,25 +115,23 @@ export const useDoctorStore = defineStore("doctor", () => {
     }
 
     const editDoctor = async () => {
-        const updatedDoctor = {
-            firstName: editDoctorData.firstName,
-            lastName: editDoctorData.lastName,
-            imageIrl: editDoctorData.imageIrl,
-            yearsOfExperience: editDoctorData.yearsOfExperience,
-            email: editDoctorData.email,
-            phoneNumber: editDoctorData.phoneNumber,
-            consultationFee: editDoctorData.consultationFee,
-            isAvailable: editDoctorData.isAvailable,
-            departamentId: editDoctorData.departamentId
-        }
+        const editFormData = new FormData();
+
+        editFormData.append("firstName", editDoctorData.firstName);
+        editFormData.append("lastName", editDoctorData.lastName);
+        editFormData.append("yearsOfExperience", editDoctorData.yearsOfExperience);
+        editFormData.append("email", editDoctorData.email);
+        editFormData.append("phoneNumber", editDoctorData.phoneNumber);
+        editFormData.append("consultationFee", editDoctorData.consultationFee);
+        editFormData.append("isAvailable", editDoctorData.isAvailable);
+        editFormData.append("departamentId", editDoctorData.departamentId);
+        editFormData.append("image", editDoctorData.image)
+        editFormData.append("imageFileName", editDoctorData.imageFileName)
 
         try {
             const res = await fetch(`${url}/EditDoctor/${selectedDoctorId.value}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedDoctor)
+                body: editFormData
             })
 
             if (res.ok) {

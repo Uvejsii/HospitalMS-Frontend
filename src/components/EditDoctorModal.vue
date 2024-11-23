@@ -7,6 +7,7 @@ import RadioButton from "primevue/radiobutton";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
+import FileUpload from "primevue/fileupload";
 import Form from "@primevue/forms/form";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
@@ -28,6 +29,7 @@ const initialValues = computed(() => ({
   editDocConsultationFee: doctorStore.editDoctorData.consultationFee,
   editDocIsAvailable: doctorStore.editDoctorData.isAvailable,
   editDocDepartamentId: doctorStore.editDoctorData.departamentId,
+  editDocImgFileName: doctorStore.editDoctorData.imageFileName
 }))
 
 const resolver = ref(
@@ -36,6 +38,7 @@ const resolver = ref(
           editDocFName: z.string().min(1, { message: "First Name is required" }),
           editDocLName: z.string().min(1, { message: "Last Name is required" }),
           editDocImageUrl: z.string().min(1, { message: "Image is required" }),
+          editDocImgFileName: z.string().min(1, { message: "Image Name is required" }),
           editDocYearsOfExperience: z.number().gt(0, { message: "Must be a greater than 0" })
               .lt(100, {message: "Must be less than 100"}),
           editDocEmail: z.string().min(1, { message: "Email is required" })
@@ -47,6 +50,10 @@ const resolver = ref(
         })
     )
 )
+
+const onFileSelect = (event) => {
+  doctorStore.editDoctorData.image = event.files[0]
+}
 
 const closeModal = () => {
   doctorStore.showEditDocForm = false
@@ -75,6 +82,25 @@ const onFormSubmit = ({ valid }) => {
         <Form id="editDoctorForm" ref="editDocFormRef" v-slot="$form" :resolver="resolver"
               :initialValues="initialValues" @submit="onFormSubmit">
           <div class="modal-body p-4">
+            <div class="d-flex align-items-center justify-content-between">
+              <img :src="doctorStore.editDoctorData.imageFilePath || 'https://via.placeholder.com/150'"
+                   alt="dr image" style="width: 70px; height: 70px; object-fit: cover;" class="rounded-circle shadow-sm">
+              <FileUpload name="docImgUpload" mode="basic" class="p-button-outlined" chooseLabel="Change Img"
+                          accept="image/*" :maxFileSize="10000000" @select="onFileSelect">
+                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Drag and drop files here</label>
+                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocImageUrl.error?.message }}
+                </Message>
+              </FileUpload>
+              <FloatLabel variant="on">
+                <InputText name="editDocImgFileName" id="editImgFileName" type="text" class="form-control"
+                           autocomplete="off" v-model.trim="doctorStore.editDoctorData.imageFileName" />
+                <label :class="{'pb-3': $form.editDocImgFileName?.invalid}" for="editImgFileName">Image Name</label>
+                <Message v-if="$form.editDocImgFileName?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.editDocImgFileName.error?.message }}
+                </Message>
+              </FloatLabel>
+            </div>
             <div class="d-flex justify-content-between align-items-center my-4">
               <FloatLabel variant="on">
                 <InputText name="editDocFName" id="editFName" type="text" class="form-control" autocomplete="off"
@@ -94,14 +120,14 @@ const onFormSubmit = ({ valid }) => {
               </FloatLabel>
             </div>
             <div class="d-flex justify-content-between align-items-center my-4">
-              <FloatLabel variant="on">
-                <InputText name="editDocImageUrl" id="editImgUrl" type="text" class="form-control" autocomplete="off"
-                           v-model="doctorStore.editDoctorData.imageIrl" />
-                <label :class="{'pb-3': $form.editDocImageUrl?.invalid}" for="editImgUrl">Image Url</label>
-                <Message v-if="$form.editDocImageUrl?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.editDocImageUrl.error?.message }}
-                </Message>
-              </FloatLabel>
+<!--              <FloatLabel variant="on">-->
+<!--                <InputText name="editDocImageUrl" id="editImgUrl" type="text" class="form-control" autocomplete="off"-->
+<!--                           v-model="doctorStore.editDoctorData.imageIrl" />-->
+<!--                <label :class="{'pb-3': $form.editDocImageUrl?.invalid}" for="editImgUrl">Image Url</label>-->
+<!--                <Message v-if="$form.editDocImageUrl?.invalid" severity="error" size="small" variant="simple">-->
+<!--                  {{ $form.editDocImageUrl.error?.message }}-->
+<!--                </Message>-->
+<!--              </FloatLabel>-->
               <FloatLabel variant="on">
                 <InputNumber name="editDocYearsOfExperience" id="editYrsExp"
                              v-model="doctorStore.editDoctorData.yearsOfExperience" fluid />

@@ -50,7 +50,7 @@ const onFormSubmit = ({ valid }) => {
 </script>
 
 <template>
-  <div v-if="departmentStore.showAddDepForm" class="modal-container" @click.self="closeModal">
+  <div v-if="departmentStore.showAddDepForm" class="modal-container">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <p class="m-0 text-center fw-semibold fs-4 mt-3 text-success">Add Department</p>

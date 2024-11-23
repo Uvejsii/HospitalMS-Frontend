@@ -6,6 +6,7 @@ import Select from "primevue/select";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
+import FileUpload from "primevue/fileupload";
 import RadioButton from "primevue/radiobutton";
 import Message from "primevue/message";
 import Form from "@primevue/forms/form";
@@ -21,6 +22,7 @@ const initialValues = ref({
   addDocFName: '',
   addDocLName: '',
   addDocImageUrl: '',
+  addDocImgFileName: '',
   addDocYearsOfExperience: 1,
   addDocEmail: '',
   addDocPhoneNumber: '',
@@ -35,6 +37,7 @@ const resolver = ref(
           addDocFName: z.string().min(1, { message: "First Name is required" }),
           addDocLName: z.string().min(1, { message: "Last Name is required" }),
           addDocImageUrl: z.string().min(1, { message: "Image is required" }),
+          addDocImgFileName: z.string().min(1, { message: "File Name is required" }),
           addDocYearsOfExperience: z.number().gt(0, { message: "Must be a greater than 0" })
               .lt(100, {message: "Must be less than 100"}),
           addDocEmail: z.string().min(1, { message: "Email is required" })
@@ -47,6 +50,10 @@ const resolver = ref(
     )
 )
 
+const onFileSelect = (event) => {
+  doctorStore.addDoctorData.image = event.files[0]
+}
+
 const closeModal = () => {
   doctorStore.showAddDocForm = false;
   resetForm()
@@ -56,7 +63,8 @@ const resetForm = () => {
   doctorStore.addDoctorData = {
     firstName: '',
     lastName: '',
-    imageIrl: '',
+    image: null,
+    imageFileName: '',
     yearsOfExperience: 1,
     email: '',
     consultationFee: 0,
@@ -110,27 +118,6 @@ onMounted(async () => {
             </div>
             <div class="d-flex justify-content-between align-items-center my-4">
               <FloatLabel variant="on">
-                <InputText name="addDocImageUrl" id="imgUrl" type="text" class="form-control" autocomplete="off"
-                           v-model="doctorStore.addDoctorData.imageIrl" />
-
-                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Image Url</label>
-                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.addDocImageUrl.error?.message }}
-                </Message>
-              </FloatLabel>
-              <FloatLabel variant="on">
-                <InputNumber name="addDocYearsOfExperience" id="yrsExp"
-                             v-model="doctorStore.addDoctorData.yearsOfExperience" fluid />
-                <label :class="{'pb-3': $form.addDocYearsOfExperience?.invalid}" for="yrsExp">
-                  Years of Experience
-                </label>
-                <Message v-if="$form.addDocYearsOfExperience?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.addDocYearsOfExperience.error?.message }}
-                </Message>
-              </FloatLabel>
-            </div>
-            <div class="d-flex justify-content-between align-items-center my-4">
-              <FloatLabel variant="on">
                 <InputText name="addDocEmail" id="email" type="text" class="form-control" autocomplete="off"
                            v-model.trim="doctorStore.addDoctorData.email" />
                 <label :class="{'pb-3': $form.addDocEmail?.invalid}" for="email">Email</label>
@@ -149,6 +136,16 @@ onMounted(async () => {
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <FloatLabel variant="on">
+                <InputNumber name="addDocYearsOfExperience" id="yrsExp"
+                             v-model="doctorStore.addDoctorData.yearsOfExperience" fluid />
+                <label :class="{'pb-3': $form.addDocYearsOfExperience?.invalid}" for="yrsExp">
+                  Years of Experience
+                </label>
+                <Message v-if="$form.addDocYearsOfExperience?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocYearsOfExperience.error?.message }}
+                </Message>
+              </FloatLabel>
+              <FloatLabel variant="on">
                 <InputNumber name="addDocConsultationFee" inputId="currency-germany" id="consFee"
                              mode="currency" currency="EUR" locale="de-DE"
                            v-model.trim="doctorStore.addDoctorData.consultationFee" fluid />
@@ -157,14 +154,23 @@ onMounted(async () => {
                   {{ $form.addDocConsultationFee.error?.message }}
                 </Message>
               </FloatLabel>
-              <div>
-                <Select name="addDocDepartamentId" v-model="doctorStore.addDoctorData.departamentId"
-                        :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
-                        appendTo="#addDoctorModal" placeholder="Select a Department" />
-                <Message v-if="$form.addDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.addDocDepartamentId.error?.message }}
+            </div>
+            <div class="d-flex justify-content-between align-items-center my-4">
+              <FileUpload name="docImgUpload" mode="basic" class="p-button-outlined"
+                          accept="image/*" :maxFileSize="10000000" @select="onFileSelect">
+                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Drag and drop files here</label>
+                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocImageUrl.error?.message }}
                 </Message>
-              </div>
+              </FileUpload>
+              <FloatLabel variant="on">
+                <InputText name="addDocImgFileName" id="fileName" type="text" class="form-control" autocomplete="off"
+                           v-model.trim="doctorStore.addDoctorData.imageFileName" />
+                <label :class="{'pb-3': $form.addDocImgFileName?.invalid}" for="fileName">Image Name</label>
+                <Message v-if="$form.addDocImgFileName?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocImgFileName.error?.message }}
+                </Message>
+              </FloatLabel>
             </div>
             <div class="d-flex justify-content-between my-4">
               <div class="d-flex gap-4 align-items-center">
@@ -181,6 +187,14 @@ onMounted(async () => {
                 </div>
                 <Message v-if="$form.addDocIsAvailable?.invalid" severity="error" size="small" variant="simple">
                   {{ $form.addDocIsAvailable.error?.message }}
+                </Message>
+              </div>
+              <div>
+                <Select name="addDocDepartamentId" v-model="doctorStore.addDoctorData.departamentId"
+                        :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
+                        appendTo="#addDoctorModal" placeholder="Select a Department" />
+                <Message v-if="$form.addDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.addDocDepartamentId.error?.message }}
                 </Message>
               </div>
             </div>
