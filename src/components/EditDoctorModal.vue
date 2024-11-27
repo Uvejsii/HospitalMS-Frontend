@@ -22,22 +22,28 @@ const editDocFormRef = ref(null);
 const initialValues = computed(() => ({
   editDocFName: doctorStore.editDoctorData.firstName,
   editDocLName: doctorStore.editDoctorData.lastName,
-  editDocImageUrl: doctorStore.editDoctorData.imageIrl,
+  editDocImage: doctorStore.editDoctorData.image,
+  editDocImgFileName: doctorStore.editDoctorData.imageFileName,
   editDocYearsOfExperience: doctorStore.editDoctorData.yearsOfExperience,
   editDocEmail: doctorStore.editDoctorData.email,
   editDocPhoneNumber: doctorStore.editDoctorData.phoneNumber,
   editDocConsultationFee: doctorStore.editDoctorData.consultationFee,
   editDocIsAvailable: doctorStore.editDoctorData.isAvailable,
   editDocDepartamentId: doctorStore.editDoctorData.departamentId,
-  editDocImgFileName: doctorStore.editDoctorData.imageFileName
 }))
+
+const allowedExtensions = ['jpg', 'jpeg', 'png']
 
 const resolver = ref(
     zodResolver(
         z.object({
           editDocFName: z.string().min(1, { message: "First Name is required" }),
           editDocLName: z.string().min(1, { message: "Last Name is required" }),
-          editDocImageUrl: z.string().min(1, { message: "Image is required" }),
+          editDocImage: z.instanceof(File).refine((file) => file.size <= 10 * 1024 * 1024,
+              {message: "File must be less than 10MB"}).refine(
+              (file) => allowedExtensions.includes(file.name.split(".").pop().toLowerCase()),
+              { message: "File must be .jpg, .jpeg or .png" }
+          ).nullable().optional(),
           editDocImgFileName: z.string().min(1, { message: "Image Name is required" }),
           editDocYearsOfExperience: z.number().gt(0, { message: "Must be a greater than 0" })
               .lt(100, {message: "Must be less than 100"}),
@@ -52,7 +58,18 @@ const resolver = ref(
 )
 
 const onFileSelect = (event) => {
-  doctorStore.editDoctorData.image = event.files[0]
+  const file = event.files[0]
+  if (file) {
+    const fileExtension = file.name.split('.').pop().toLowerCase()
+    if (file.size > 10 * 1024 * 1024) {
+      return doctorStore.fileSizeAbove10Mb()
+    }
+    if(!allowedExtensions.includes(fileExtension)) {
+      return doctorStore.invalidFileType()
+    }
+
+    doctorStore.editDoctorData.image = file;
+  }
 }
 
 const closeModal = () => {
@@ -83,17 +100,19 @@ const onFormSubmit = ({ valid }) => {
               :initialValues="initialValues" @submit="onFormSubmit">
           <div class="modal-body p-4">
             <div class="d-flex align-items-center justify-content-between">
-              <img :src="doctorStore.editDoctorData.imageFilePath || 'https://via.placeholder.com/150'"
-                   alt="dr image" style="width: 70px; height: 70px; object-fit: cover;" class="rounded-circle shadow-sm">
-              <FileUpload name="docImgUpload" mode="basic" class="p-button-outlined" chooseLabel="Change Img"
-                          accept="image/*" :maxFileSize="10000000" @select="onFileSelect">
-                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Drag and drop files here</label>
-                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.addDocImageUrl.error?.message }}
-                </Message>
-              </FileUpload>
-              <FloatLabel variant="on">
-                <InputText name="editDocImgFileName" id="editImgFileName" type="text" class="form-control"
+              <div class="d-flex align-items-center w-50"  style="font-size: 13px;">
+                <img :src="doctorStore.getImageUrlWithCache(doctorStore.editDoctorData.imageFilePath)"
+                     alt="dr image" style="width: 35%; height: 65px; object-fit: cover;" class="rounded-circle shadow">
+                <FileUpload name="editDocImage" mode="basic" class="p-button-outlined" chooseLabel="Change Img"
+                            accept="image/*" :maxFileSize="10000000" @select="onFileSelect" style="font-size: 13px;">
+                  <label :class="{'pb-3': $form.editDocImage?.invalid}" for="editDocImage">Image Name</label>
+                  <Message v-if="$form.editDocImage?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.editDocImage.error?.message }}
+                  </Message>
+                </FileUpload>
+              </div>
+              <FloatLabel variant="on" class="">
+                <InputText name="editDocImgFileName" id="editImgFileName" type="text" class="form-control w-100"
                            autocomplete="off" v-model.trim="doctorStore.editDoctorData.imageFileName" />
                 <label :class="{'pb-3': $form.editDocImgFileName?.invalid}" for="editImgFileName">Image Name</label>
                 <Message v-if="$form.editDocImgFileName?.invalid" severity="error" size="small" variant="simple">
@@ -120,14 +139,6 @@ const onFormSubmit = ({ valid }) => {
               </FloatLabel>
             </div>
             <div class="d-flex justify-content-between align-items-center my-4">
-<!--              <FloatLabel variant="on">-->
-<!--                <InputText name="editDocImageUrl" id="editImgUrl" type="text" class="form-control" autocomplete="off"-->
-<!--                           v-model="doctorStore.editDoctorData.imageIrl" />-->
-<!--                <label :class="{'pb-3': $form.editDocImageUrl?.invalid}" for="editImgUrl">Image Url</label>-->
-<!--                <Message v-if="$form.editDocImageUrl?.invalid" severity="error" size="small" variant="simple">-->
-<!--                  {{ $form.editDocImageUrl.error?.message }}-->
-<!--                </Message>-->
-<!--              </FloatLabel>-->
               <FloatLabel variant="on">
                 <InputNumber name="editDocYearsOfExperience" id="editYrsExp"
                              v-model="doctorStore.editDoctorData.yearsOfExperience" fluid />
@@ -136,6 +147,17 @@ const onFormSubmit = ({ valid }) => {
                 </label>
                 <Message v-if="$form.editDocYearsOfExperience?.invalid" severity="error" size="small" variant="simple">
                   {{ $form.editDocYearsOfExperience.error?.message }}
+                </Message>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputNumber name="editDocConsultationFee" inputId="currency-germany" id="editConsFee"
+                             mode="currency" currency="EUR" locale="de-DE"
+                             v-model.trim="doctorStore.editDoctorData.consultationFee" fluid />
+                <label :class="{'pb-3': $form.editDocConsultationFee?.invalid}" for="editConsFee">
+                  Consultation Fee
+                </label>
+                <Message v-if="$form.editDocConsultationFee?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.editDocConsultationFee.error?.message }}
                 </Message>
               </FloatLabel>
             </div>
@@ -157,27 +179,6 @@ const onFormSubmit = ({ valid }) => {
                 </Message>
               </FloatLabel>
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-              <FloatLabel variant="on">
-                <InputNumber name="editDocConsultationFee" inputId="currency-germany" id="editConsFee"
-                             mode="currency" currency="EUR" locale="de-DE"
-                             v-model.trim="doctorStore.editDoctorData.consultationFee" fluid />
-                <label :class="{'pb-3': $form.editDocConsultationFee?.invalid}" for="editConsFee">
-                  Consultation Fee
-                </label>
-                <Message v-if="$form.editDocConsultationFee?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.editDocConsultationFee.error?.message }}
-                </Message>
-              </FloatLabel>
-              <div>
-                <Select name="editDocDepartamentId" v-model="doctorStore.editDoctorData.departamentId"
-                        :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
-                        appendTo="#editDoctorModal" placeholder="Select a Department" />
-                <Message v-if="$form.editDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.editDocDepartamentId.error?.message }}
-                </Message>
-              </div>
-            </div>
             <div class="d-flex justify-content-between my-4">
               <div class="d-flex gap-4 align-items-center">
                 <span class="m-0">Available:</span>
@@ -193,6 +194,14 @@ const onFormSubmit = ({ valid }) => {
                 </div>
                 <Message v-if="$form.editDocIsAvailable?.invalid" severity="error" size="small" variant="simple">
                   {{ $form.editDocIsAvailable.error?.message }}
+                </Message>
+              </div>
+              <div>
+                <Select name="editDocDepartamentId" v-model="doctorStore.editDoctorData.departamentId"
+                        :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
+                        appendTo="#editDoctorModal" placeholder="Select a Department" />
+                <Message v-if="$form.editDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
+                  {{ $form.editDocDepartamentId.error?.message }}
                 </Message>
               </div>
             </div>

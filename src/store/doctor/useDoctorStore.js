@@ -136,7 +136,10 @@ export const useDoctorStore = defineStore("doctor", () => {
 
             if (res.ok) {
                 await getAllDoctors()
+
                 toast.add({ severity: 'success', summary: 'Doctor Updated Successfully', life: 3000 });
+            } else {
+                toast.add({ severity: 'error', summary: 'Error Updating Doctor', life: 3000 });
             }
         } catch (err) {
             toast.add({ severity: 'error', summary: 'Error Updating Doctor', life: 3000 });
@@ -152,10 +155,28 @@ export const useDoctorStore = defineStore("doctor", () => {
             if (res.ok) {
                 await getAllDoctors()
                 toast.add({ severity: 'success', summary: 'Doctor Deleted Successfully', life: 3000 });
+            } else {
+                toast.add({ severity: 'error', summary: 'Error Deleting Doctor', life: 3000 });
             }
         } catch (err) {
             toast.add({ severity: 'error', summary: 'Error Deleting Doctor', life: 3000 });
         }
+    }
+
+    const getImageUrlWithCache = (imageFilePath) => {
+        if (!imageFilePath) {
+            return 'https://via.placeholder.com/150';
+        }
+        const timestamp = new Date().getTime();
+        return `${imageFilePath}?t=${timestamp}`;
+    };
+
+    const fileSizeAbove10Mb = () => {
+        toast.add({ severity: 'error', summary: 'File size exceeds 10MB', life: 4000 });
+    }
+
+    const invalidFileType = () => {
+        toast.add({ severity: 'error', summary: 'Invalid file type. Only .jpg, .jpeg, and .png are allowed.', life: 5000 });
     }
 
     return {
@@ -172,6 +193,9 @@ export const useDoctorStore = defineStore("doctor", () => {
         addDoctorData,
         editDoctorData,
         showAddDocForm,
-        showEditDocForm
+        showEditDocForm,
+        getImageUrlWithCache,
+        fileSizeAbove10Mb,
+        invalidFileType
     }
 })

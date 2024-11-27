@@ -37,7 +37,7 @@ onMounted(async () => {
 
       <div class="d-flex align-items-center my-4">
         <img
-            :src="doctorStore.doctor.imageFilePath || 'https://via.placeholder.com/150'"
+            :src="doctorStore.getImageUrlWithCache(doctorStore.doctor.imageFilePath)"
             alt="Doctor profile picture"
             class="rounded-circle shadow-sm me-3"
             style="width: 100px; height: 100px; object-fit: cover;"

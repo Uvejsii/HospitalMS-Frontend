@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import InputText from "primevue/inputtext"
 import Select from "primevue/select";
@@ -49,7 +49,7 @@ const getSeverity = (status) => {
       <Column field="firstName" header="Doctor" :showFilterMenu="false" style="max-width: 12rem;">
         <template #body="{ data }">
           <div class="d-flex align-items-center gap-2">
-            <img :src="data.imageFilePath || 'https://via.placeholder.com/150'" alt="dr img"
+            <img :src="doctorStore.getImageUrlWithCache(data.imageFilePath)" alt="dr img"
                  style="width: 40px; height: 40px; object-fit: cover;"
                  class="rounded-circle shadow-sm">
             <span class="p-0 m-0">{{ data.firstName }} {{ data.lastName }}</span>
@@ -63,7 +63,7 @@ const getSeverity = (status) => {
 
       <Column field="email" header="Email" :showFilterMenu="false" style="max-width: 14rem;">
         <template #body="{ data }">
-          {{ data.email }}
+          <span class="text-truncate">{{ data.email }}</span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" type="text"

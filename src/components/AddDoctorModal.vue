@@ -21,7 +21,7 @@ const addDocFromRef = ref(null)
 const initialValues = ref({
   addDocFName: '',
   addDocLName: '',
-  addDocImageUrl: '',
+  addDocImage: null,
   addDocImgFileName: '',
   addDocYearsOfExperience: 1,
   addDocEmail: '',
@@ -31,12 +31,25 @@ const initialValues = ref({
   addDocDepartamentId: null,
 });
 
+const allowedExtensions = ['jpg', 'jpeg', 'png']
+
 const resolver = ref(
     zodResolver(
         z.object({
           addDocFName: z.string().min(1, { message: "First Name is required" }),
           addDocLName: z.string().min(1, { message: "Last Name is required" }),
-          addDocImageUrl: z.string().min(1, { message: "Image is required" }),
+          addDocImage: z.union([
+            z.instanceof(File).refine((file) => file.size <= 10 * 1024 * 1024, {
+              message: "File must be less than 10MB",
+            }),
+            z.literal(null, { message: "Image is required" }),
+          ])
+              .refine(
+                  (file) =>
+                      file === null ||
+                      allowedExtensions.includes(file?.name.split(".").pop().toLowerCase()),
+                  { message: "File must be .jpg, .jpeg, or .png" }
+              ),
           addDocImgFileName: z.string().min(1, { message: "File Name is required" }),
           addDocYearsOfExperience: z.number().gt(0, { message: "Must be a greater than 0" })
               .lt(100, {message: "Must be less than 100"}),
@@ -51,7 +64,20 @@ const resolver = ref(
 )
 
 const onFileSelect = (event) => {
-  doctorStore.addDoctorData.image = event.files[0]
+  const file = event.files[0]
+
+  if (file) {
+    const fileExtension = file.name.split('.').pop().toLowerCase()
+    if (file.size > 10 * 1024 * 1024) {
+      return doctorStore.fileSizeAbove10Mb()
+    }
+    if (!allowedExtensions.includes(fileExtension)) {
+      return doctorStore.invalidFileType()
+    }
+
+    doctorStore.addDoctorData.image = file;
+    initialValues.value.addDocImage = file;
+  }
 }
 
 const closeModal = () => {
@@ -156,13 +182,12 @@ onMounted(async () => {
               </FloatLabel>
             </div>
             <div class="d-flex justify-content-between align-items-center my-4">
-              <FileUpload name="docImgUpload" mode="basic" class="p-button-outlined"
-                          accept="image/*" :maxFileSize="10000000" @select="onFileSelect">
-                <label :class="{'pb-3': $form.addDocImageUrl?.invalid}" for="imgUrl">Drag and drop files here</label>
-                <Message v-if="$form.addDocImageUrl?.invalid" severity="error" size="small" variant="simple">
-                  {{ $form.addDocImageUrl.error?.message }}
-                </Message>
-              </FileUpload>
+              <FileUpload name="addDocImage" mode="basic" class="p-button-outlined"
+                          accept="image/*" :maxFileSize="10000000" :fileLimit="1" @select="onFileSelect" />
+              <Message v-if="$form.addDocImage?.invalid" severity="error" size="small" variant="simple">
+                {{ $form.addDocImage.error?.message }}
+                {{ console.log($form.addDocImage) }}
+              </Message>
               <FloatLabel variant="on">
                 <InputText name="addDocImgFileName" id="fileName" type="text" class="form-control" autocomplete="off"
                            v-model.trim="doctorStore.addDoctorData.imageFileName" />
