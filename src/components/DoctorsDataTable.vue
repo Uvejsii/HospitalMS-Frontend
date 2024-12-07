@@ -52,7 +52,7 @@ const getSeverity = (status) => {
             <img :src="doctorStore.getImageUrlWithCache(data.imageFilePath)" alt="dr img"
                  style="width: 40px; height: 40px; object-fit: cover;"
                  class="rounded-circle shadow-sm">
-            <span class="p-0 m-0">{{ data.firstName }} {{ data.lastName }}</span>
+            <span class="p-0 m-0" style="font-weight: 500;">{{ data.firstName }} {{ data.lastName }}</span>
           </div>
         </template>
         <template #filter="{ filterModel, filterCallback }">
@@ -83,7 +83,7 @@ const getSeverity = (status) => {
 
       <Column header="Department" field="departament" :showFilterMenu="false" style="max-width: 12rem">
         <template #body="{ data }">
-          <span>{{ data.departament.name }}</span>
+          <span style="font-weight: 500;">{{ data.departament.name }}</span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect v-model="filterModel.value" @change="filterCallback()"

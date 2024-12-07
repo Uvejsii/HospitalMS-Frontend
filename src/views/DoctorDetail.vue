@@ -1,12 +1,56 @@
 <script setup>
 import { useRoute } from "vue-router";
-import { onMounted } from "vue";
+import {computed, onMounted, ref} from "vue";
 import { useDoctorStore } from "../store/doctor/useDoctorStore.js";
 import Button from 'primevue/button'
 import Skeleton from "primevue/skeleton";
+import DatePicker from "primevue/datepicker";
+import FloatLabel from "primevue/floatlabel";
+import Select from "primevue/select"
 
 const route = useRoute()
 const doctorStore = useDoctorStore()
+
+const date = ref(null);
+const timeSlot = ref(null);
+
+const today = new Date();
+
+const timeSlots = computed(() => {
+  const slots = [];
+  const start = new Date();
+  start.setHours(9, 0, 0, 0);
+  const end = new Date();
+  end.setHours(17, 0, 0, 0);
+
+  while (start < end) {
+    const next = new Date(start.getTime() + 30 * 60 * 1000); // Add 30 minutes
+    slots.push({
+      label: `${start.toLocaleTimeString([], {
+        hour: '2-digit', minute: '2-digit' })} - ${next.toLocaleTimeString([],
+          { hour: '2-digit', minute: '2-digit' })
+      }`,
+      value: `${start.toISOString()} - ${next.toISOString()}`,
+    });
+    start.setMinutes(start.getMinutes() + 30);
+  }
+  return slots;
+});
+
+const formatTime = (timeRange) => {
+  const [start, end] = timeRange.split(" - ");
+  const startTime = new Date(start).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+  const endTime = new Date(end).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+  return `${startTime} - ${endTime}`;
+};
 
 onMounted(async () => {
   await doctorStore.getDoctorById(route.params.id)
@@ -31,11 +75,10 @@ onMounted(async () => {
         </div>
       </div>
     <div v-else class="card mx-auto shadow-lg p-4" style="max-width: 600px;">
-      <RouterLink class="text-decoration-none" to="/">
-        <Button icon="bi bi-arrow-left" label="Back" />
+      <RouterLink class="text-decoration-none w-25" to="/">
+        <Button icon="bi bi-arrow-left" label="Back" class="w-100" />
       </RouterLink>
-
-      <div class="d-flex align-items-center my-4">
+      <div class="d-flex align-items-center mt-4">
         <img
             :src="doctorStore.getImageUrlWithCache(doctorStore.doctor.imageFilePath)"
             alt="Doctor profile picture"
@@ -50,7 +93,43 @@ onMounted(async () => {
           </h6>
         </div>
       </div>
-
+      <div class="d-flex justify-content-center gap-4 my-4">
+        <div class="w-50">
+          <FloatLabel variant="on">
+            <DatePicker
+                v-model="date"
+                inputId="booking-date"
+                :minDate="today"
+                showIcon
+                class="w-100"
+            />
+            <label for="booking-date">Select Date</label>
+          </FloatLabel>
+        </div>
+        <div class="w-50">
+          <FloatLabel variant="on">
+            <Select v-model="timeSlot" :options="timeSlots" optionLabel="label"
+                    optionValue="value" placeholder="Select Time" class="w-100"/>
+            <label>Select Time</label>
+          </FloatLabel>
+        </div>
+        <p v-if="date && timeSlot">
+          Selected Date: {{ date.toLocaleDateString() }}
+          <br />
+          Selected Time: {{ formatTime(timeSlot) }}
+        </p>
+      </div>
+      <div class="mb-4">
+        <p class="m-0">
+          <b>Dr. {{ doctorStore.doctor.firstName }} {{ doctorStore.doctor.lastName }}</b> brings
+          <b>
+            {{ doctorStore.doctor.yearsOfExperience }}
+            <span>{{ doctorStore.doctor.yearsOfExperience > 1 ? ' years' : ' year' }}</span>
+          </b>
+          of professional experience and specializes in <b>{{ doctorStore.doctor.departament?.name }}</b>.
+          This department is located at <b>{{ doctorStore.doctor.departament?.location }}</b>.
+        </p>
+      </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex align-items-center">
           <i class="bi bi-envelope-fill me-2 text-primary"></i>
@@ -76,23 +155,6 @@ onMounted(async () => {
 <style scoped>
 .container {
   max-width: 600px;
-}
-
-.doctor-card {
-  border-radius: 8px;
-  background-color: #ffffff;
-}
-
-.doctor-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-}
-
-.doctor-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
 }
 
 .list-group-item {

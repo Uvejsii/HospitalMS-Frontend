@@ -5,7 +5,7 @@ import {Toast} from "primevue";
 
 <template>
   <Toast/>
-  <div class="container my-4">
+  <div class="container">
     <RouterView/>
   </div>
 </template>

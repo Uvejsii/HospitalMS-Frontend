@@ -10,17 +10,19 @@ import EditDepartmentModal from "../components/EditDepartmentModal.vue";
 </script>
 
 <template>
-  <ConfirmDelete />
-  <div class="d-flex justify-content-between">
-    <BackHomeButton />
-    <NavigateDashboards />
-    <AddButtons />
+  <div class="my-4">
+    <ConfirmDelete />
+    <div class="d-flex justify-content-between">
+      <BackHomeButton />
+      <NavigateDashboards />
+      <AddButtons />
+    </div>
+    <AddDoctorModal />
+    <EditDoctorModal />
+    <AddDepartmentModal />
+    <EditDepartmentModal />
+    <RouterView/>
   </div>
-  <AddDoctorModal />
-  <EditDoctorModal />
-  <AddDepartmentModal />
-  <EditDepartmentModal />
-  <RouterView/>
 </template>
 
 <style scoped>

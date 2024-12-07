@@ -4,6 +4,8 @@ import DoctorDetail from "../views/DoctorDetail.vue";
 import Admin from "../views/Admin.vue";
 import DoctorsDataTable from "../components/DoctorsDataTable.vue";
 import CategoriesDataTable from "../components/CategoriesDataTable.vue";
+import Login from "../views/auth/Login.vue";
+import Register from "../views/auth/Register.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +14,16 @@ const router = createRouter({
             path: '/',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: Login
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: Register
         },
         {
           path: '/admin',

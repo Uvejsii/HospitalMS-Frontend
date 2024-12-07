@@ -180,7 +180,7 @@ const onFormSubmit = ({ valid }) => {
               </FloatLabel>
             </div>
             <div class="d-flex justify-content-between my-4">
-              <div class="d-flex gap-4 align-items-center">
+              <div class="d-flex gap-3 align-items-center">
                 <span class="m-0">Available:</span>
                 <div class="d-flex justify-content-center gap-2">
                   <RadioButton name="editDocIsAvailable" v-model="doctorStore.editDoctorData.isAvailable"
@@ -196,10 +196,10 @@ const onFormSubmit = ({ valid }) => {
                   {{ $form.editDocIsAvailable.error?.message }}
                 </Message>
               </div>
-              <div>
+              <div class="w-50 ps-1">
                 <Select name="editDocDepartamentId" v-model="doctorStore.editDoctorData.departamentId"
                         :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
-                        appendTo="#editDoctorModal" placeholder="Select a Department" />
+                        appendTo="#editDoctorModal" placeholder="Select Department" class="w-100" />
                 <Message v-if="$form.editDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
                   {{ $form.editDocDepartamentId.error?.message }}
                 </Message>

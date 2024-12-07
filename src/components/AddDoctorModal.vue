@@ -198,7 +198,7 @@ onMounted(async () => {
               </FloatLabel>
             </div>
             <div class="d-flex justify-content-between my-4">
-              <div class="d-flex gap-4 align-items-center">
+              <div class="d-flex gap-3 align-items-center">
                 <span class="m-0">Available:</span>
                 <div class="d-flex justify-content-center gap-2">
                   <RadioButton name="addDocIsAvailable" v-model="doctorStore.addDoctorData.isAvailable"
@@ -214,10 +214,10 @@ onMounted(async () => {
                   {{ $form.addDocIsAvailable.error?.message }}
                 </Message>
               </div>
-              <div>
+              <div class="w-50 ps-1">
                 <Select name="addDocDepartamentId" v-model="doctorStore.addDoctorData.departamentId"
                         :options="departmentStore.departments" optionValue="id" showClear optionLabel="name"
-                        appendTo="#addDoctorModal" placeholder="Select a Department" />
+                        appendTo="#addDoctorModal" placeholder="Select Department" class="w-100" />
                 <Message v-if="$form.addDocDepartamentId?.invalid" severity="error" size="small" variant="simple">
                   {{ $form.addDocDepartamentId.error?.message }}
                 </Message>

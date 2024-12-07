@@ -14,7 +14,6 @@ export const useDepartmentStore = defineStore('department', () => {
         name: '',
         location: ''
     })
-
     const addDepartmentData = reactive({
         name: '',
         location: ''
