@@ -3,7 +3,7 @@ import {reactive, ref} from "vue";
 import {useToast} from "primevue/usetoast";
 
 export const useDepartmentStore = defineStore('department', () => {
-    const url = 'https://localhost:7198/Department'
+    const url = 'http://localhost:5233/Department'
     const toast = useToast()
     const departments = ref([])
     let isLoading = ref(false)

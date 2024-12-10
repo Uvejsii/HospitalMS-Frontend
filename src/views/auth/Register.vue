@@ -103,7 +103,7 @@ const onFormSubmit = ({ valid }) => {
                         v-model.trim="authStore.registerPatientData.password"
                         promptLabel="Choose a password" weakLabel="Too simple"
                         mediumLabel="Average complexity" strongLabel="Strong password" />
-              <label :class="{'pb-3': $form.registerPatientPassword?.invalid}" for="registerPPw">Password</label>
+              <label :class="{'pb-4': $form.registerPatientPassword?.invalid}" for="registerPPw">Password</label>
               <Message v-if="$form.registerPatientPassword?.invalid" severity="error" size="small" variant="simple">
                 {{ $form.registerPatientPassword.error?.message }}
               </Message>
@@ -111,9 +111,8 @@ const onFormSubmit = ({ valid }) => {
             <FloatLabel variant="on">
               <Password name="registerPatientConfirmPassword" id="registerPCPw"
                         v-model.trim="authStore.registerPatientData.confirmPassword"
-                        promptLabel="Choose a password" weakLabel="Too simple"
-                        mediumLabel="Average complexity" strongLabel="Strong password" />
-              <label :class="{'pb-3': $form.registerPatientConfirmPassword?.invalid}" for="registerPPw">
+                        :feedback="false"/>
+              <label :class="{'pb-4': $form.registerPatientConfirmPassword?.invalid}" for="registerPPw">
                 Confirm password
               </label>
               <Message v-if="$form.registerPatientConfirmPassword?.invalid"
@@ -122,7 +121,13 @@ const onFormSubmit = ({ valid }) => {
               </Message>
             </FloatLabel>
           </div>
-          <Button type="submit" label="Register" class="w-100 mt-4" />
+          <div class="d-flex flex-column gap-4">
+            <Button type="submit" label="Register" class="w-100 mt-4" />
+            <p class="m-0 text-center">Already have an account? click
+              <RouterLink to="/login">here</RouterLink>
+              to Login.
+            </p>
+          </div>
         </Form>
       </div>
     </div>

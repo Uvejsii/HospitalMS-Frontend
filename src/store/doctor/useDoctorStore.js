@@ -4,7 +4,7 @@ import {useToast} from "primevue/usetoast";
 
 
 export const useDoctorStore = defineStore("doctor", () => {
-    const url = 'https://localhost:7198/Doctors'
+    const url = 'http://localhost:5233/Doctors'
     const toast = useToast()
     const doctors = ref([])
     const doctor = ref({})

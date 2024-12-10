@@ -6,7 +6,7 @@ const {doctor} = defineProps(['doctor'])
 </script>
 
 <template>
-  <Card class="col-3 mx-auto p-0 my-3 overflow-hidden shadow">
+  <Card class="col-xl-3 col-lg-4 col-md-5 col-sm-6 col-11  mx-auto p-0 my-3 overflow-hidden shadow">
     <template #header>
       <img :src="doctor.imageFilePath" alt="Doctors picture" class="doc-image" />
     </template>

@@ -6,6 +6,8 @@ import DoctorsDataTable from "../components/DoctorsDataTable.vue";
 import CategoriesDataTable from "../components/CategoriesDataTable.vue";
 import Login from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
+import {useAuthStore} from "../store/auth/useAuthStore.js";
+import NotFound from "../views/NotFound.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +16,11 @@ const router = createRouter({
             path: '/',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'no-found',
+            component: NotFound,
         },
         {
             path: '/login',
@@ -26,19 +33,22 @@ const router = createRouter({
             component: Register
         },
         {
-          path: '/admin',
-          name: 'admin',
-          component: Admin,
+            path: '/admin',
+            name: 'admin',
+            component: Admin,
+            meta: { requiresAuth: true },
             children: [
                 {
-                    path: '/admin/doctorsDashboard',
+                    path: 'doctorsDashboard',
                     name: 'doctorsDashboard',
-                    component: DoctorsDataTable
+                    component: DoctorsDataTable,
+                    meta: { requiresAuth: true },
                 },
                 {
-                    path: '/admin/departmentsDashboard',
+                    path: 'departmentsDashboard',
                     name: 'departmentsDashboard',
-                    component: CategoriesDataTable
+                    component: CategoriesDataTable,
+                    meta: { requiresAuth: true },
                 }
             ]
         },
@@ -49,5 +59,20 @@ const router = createRouter({
         }
     ]
 })
+
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore()
+
+    if (to.meta.requiresAuth) {
+        if (authStore.isAdmin()) {
+            next()
+        } else {
+            next('/login');
+        }
+    } else {
+        next();
+    }
+});
+
 
 export default router

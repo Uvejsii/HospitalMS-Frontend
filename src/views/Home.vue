@@ -1,15 +1,21 @@
 <script setup>
 import {onMounted} from "vue";
 import {useDoctorStore} from "../store/doctor/useDoctorStore.js";
+import {useAuthStore} from "../store/auth/useAuthStore.js";
 import DoctorCard from "../components/DoctorCard.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import Button from "primevue/button";
 
 const doctorStore = useDoctorStore()
+const authStore = useAuthStore()
 
 onMounted( async () => {
   await doctorStore.getAllDoctors()
+  if (authStore.getUserFromLocalStorage()) {
+    await authStore.pingAuth()
+  }
 })
+
 </script>
 
 <template>
@@ -20,6 +26,11 @@ onMounted( async () => {
           <Button icon="bi bi-arrow-right" label="Go to Admin" severity="info"/>
         </RouterLink>
       </h5>
+      <p class="m-0" v-if="authStore.loggedInUser.firstName">
+        {{ authStore.loggedInUser.firstName + ' ' + authStore.loggedInUser.lastName }}
+      </p>
+      <Button v-if="authStore.loggedInUser.firstName"
+              label="logout" severity="danger" @click="authStore.logOut()" />
       <RouterLink to="/register" class="text-decoration-none text-dark">
         <Button icon="bi bi-person-circle" />
       </RouterLink>
