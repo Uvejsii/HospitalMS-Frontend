@@ -8,6 +8,9 @@ import Login from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
 import {useAuthStore} from "../store/auth/useAuthStore.js";
 import NotFound from "../views/NotFound.vue";
+import DoctorProfile from "../views/DoctorProfile.vue";
+import Notifications from "../views/Notifications.vue";
+import Chat from "../views/Chat.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,13 +52,29 @@ const router = createRouter({
                     name: 'departmentsDashboard',
                     component: CategoriesDataTable,
                     meta: { requiresAuth: true },
+                },
+                {
+                    path: 'notifications',
+                    name: 'notifications',
+                    component: Notifications,
+                    meta: { requiresAuth: true },
                 }
             ]
+        },
+        {
+            path: '/doctorProfile',
+            name: 'doctor-profile',
+            component: DoctorProfile
         },
         {
             path: '/doctor/:id',
             name: 'doctor',
             component: DoctorDetail
+        },
+        {
+            path: '/chat',
+            name: 'chat',
+            component: Chat
         }
     ]
 })

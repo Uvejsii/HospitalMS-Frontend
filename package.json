@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.7",
     "@primevue/core": "^4.2.1",
     "@primevue/forms": "^4.2.2",
     "@primevue/themes": "^4.2.1",

@@ -11,6 +11,7 @@ const route = useRoute()
 const items = ref([
   { route: '/admin/doctorsDashboard', label: 'Doctors', icon: 'bi bi-person' },
   { route: '/admin/departmentsDashboard', label: 'Departments', icon: 'bi bi-hospital' },
+  { route: '/admin/notifications', label: 'Notifications', icon: 'bi bi-bell' },
 ]);
 </script>
 

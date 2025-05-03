@@ -10,10 +10,12 @@ import DataTable from "primevue/datatable";
 import Button from "primevue/button"
 import {useDoctorStore} from "../store/doctor/useDoctorStore.js";
 import {useDepartmentStore} from "../store/department/useDepartmentStore.js";
+import {useAuthStore} from "../store/auth/useAuthStore.js";
 import DeleteDoctorButton from "./DeleteDoctorButton.vue";
 
 const doctorStore = useDoctorStore()
 const departmentStore = useDepartmentStore()
+const authStore = useAuthStore()
 
 const filters = ref({
   firstName: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -114,6 +116,8 @@ const getSeverity = (status) => {
             <Button icon="bi bi-pencil" severity="warn" size="small" rounded variant="outlined" aria-label="Edit"
                     @click="doctorStore.startEditDoctor(data); doctorStore.showEditDocForm = true"/>
             <DeleteDoctorButton :doctor="data" />
+            <Button icon="bi bi-arrow-clockwise" size="small" rounded variant="outlined" aria-label="Reset Password"
+                    @click="authStore.resetPassword(data)"/>
           </div>
         </template>
       </Column>

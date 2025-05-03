@@ -58,7 +58,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container py-4">
       <div v-if="doctorStore.isLoading" class="rounded border border-1 p-5">
         <div class="d-flex mb-4">
           <Skeleton shape="circle" size="4rem" class="ms-2"></Skeleton>
@@ -75,9 +75,6 @@ onMounted(async () => {
         </div>
       </div>
     <div v-else class="card mx-auto shadow-lg p-4" style="max-width: 600px;">
-      <RouterLink class="text-decoration-none w-25" to="/">
-        <Button icon="bi bi-arrow-left" label="Back" class="w-100" />
-      </RouterLink>
       <div class="d-flex align-items-center mt-4">
         <img
             :src="doctorStore.getImageUrlWithCache(doctorStore.doctor.imageFilePath)"

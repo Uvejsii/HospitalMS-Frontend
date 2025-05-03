@@ -2,7 +2,6 @@ import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
 import {useToast} from "primevue/usetoast";
 
-
 export const useDoctorStore = defineStore("doctor", () => {
     const url = 'http://localhost:5233/Doctors'
     const toast = useToast()
